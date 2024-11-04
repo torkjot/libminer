@@ -1,4 +1,3 @@
-
 #' Provide Number of R Packages by Library
 #'
 #' Provide the number of R package by library in
@@ -9,7 +8,6 @@
 #'
 #' @examples
 #' lib_summary()
-
 lib_summary <- function() {
   pkgs <- utils::installed.packages() # What packages are installed in sys
     # in a raw format
