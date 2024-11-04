@@ -1,3 +1,15 @@
+
+#' Provide Number of R Packages by Library
+#'
+#' Provide the number of R package by library in
+#'  a data.frame
+#'
+#' @return a data.frame of R packages by library
+#' @export
+#'
+#' @examples
+#' lib_summary()
+
 lib_summary <- function() {
   pkgs <- utils::installed.packages() # What packages are installed in sys
     # in a raw format
@@ -13,3 +25,6 @@ lib_summary <- function() {
   # OR USE SHORTCUT: Ctrl-Shift-L
 # library takes from Installed to Memory
 # devtools goes Source to Memory
+
+# ctrl-shift-d is shortcut to run documentation - will turn roxygen comment
+  # into documentation to get to by ?function()
