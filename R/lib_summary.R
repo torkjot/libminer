@@ -8,6 +8,7 @@
 #'
 #' @examples
 #' lib_summary()
+
 lib_summary <- function() {
   pkgs <- utils::installed.packages() # What packages are installed in sys
     # in a raw format
