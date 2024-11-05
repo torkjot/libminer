@@ -4,7 +4,10 @@
 \alias{lib_summary}
 \title{Provide Number of R Packages by Library}
 \usage{
-lib_summary()
+lib_summary(sizes = FALSE)
+}
+\arguments{
+\item{sizes}{Should sizes of libraries be calculated. Default 'FALSE'.can be accessed through insert roxygen skeletonname of parameter and document what it does}
 }
 \value{
 a data.frame of R packages by library

@@ -3,13 +3,21 @@
 #' Provide the number of R package by library in
 #'  a data.frame
 #'
+#' @param sizes Should sizes of libraries be calculated. Default 'FALSE'.
+#' # can be accessed through insert roxygen skeleton
+#' # name of parameter and document what it does
+#'
 #' @return a data.frame of R packages by library
 #' @export
 #'
 #' @examples
 #' lib_summary()
 
-lib_summary <- function() {
+lib_summary <- function(sizes = FALSE) {
+  if (!is.logical(sizes)) {
+    stop("'sizes' must be logical (TRUE or FALSE)")
+  }
+
   pkgs <- utils::installed.packages() # What packages are installed in sys
     # in a raw format
   pkg_tbl <- table(pkgs[, "LibPath"]) # Pull out one column
@@ -17,6 +25,18 @@ lib_summary <- function() {
   pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
     # convert into a dataframe and convert into factors
   names(pkg_df) <- c("Library", "n_packages") # Give new names
+
+  if (isTRUE(sizes)) {
+    pkg_df$lib_size <- vapply( # for each row in the library
+      pkg_df$Library,
+      function(x) {
+        sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+          # list all files recursively and determine their size and sum them
+      },
+      FUN.VALUE = numeric(1) # ensures that the value of the sum is numeric
+    )
+  }
+
   pkg_df # return the package dataframe
 }
 
