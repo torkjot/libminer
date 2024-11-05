@@ -14,6 +14,7 @@
 #' lib_summary()
 
 lib_summary <- function(sizes = FALSE) {
+  # Input checking
   if (!is.logical(sizes)) {
     stop("'sizes' must be logical (TRUE or FALSE)")
   }
@@ -83,3 +84,8 @@ calculate_sizes <- function(df) {
   )
   df
 }
+
+
+# validate_inputs <- function() {
+#   if
+# }
