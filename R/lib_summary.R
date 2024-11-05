@@ -18,13 +18,21 @@ lib_summary <- function(sizes = FALSE) {
     stop("'sizes' must be logical (TRUE or FALSE)")
   }
 
-  pkgs <- utils::installed.packages() # What packages are installed in sys
-    # in a raw format
-  pkg_tbl <- table(pkgs[, "LibPath"]) # Pull out one column
-    # and summarize it into a table by unique values
+# Original method
+  # pkgs <- utils::installed.packages() # What packages are installed in sys
+  #   # in a raw format
+  # pkg_tbl <- table(pkgs[, "LibPath"]) # Pull out one column
+  #   # and summarize it into a table by unique values
+  # pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
+  #   # convert into a dataframe and convert into factors
+
+# Using helper function (see below)
+  pkg_df <- lib()
+  pkg_tbl <- table(pkg_df[, "LibPath"])
   pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
-    # convert into a dataframe and convert into factors
-  names(pkg_df) <- c("Library", "n_packages") # Give new names
+
+  names(pkg_df) <- c("Library", "n_packages")
+
 
   if (isTRUE(sizes)) {
     # pkg_df$lib_size <- vapply( # for each row in the library
@@ -43,7 +51,7 @@ lib_summary <- function(sizes = FALSE) {
     )
   }
 
-  pkg_df # return the package dataframe
+  pkg_df # return the package data.frame
 }
 
 # load using devtools::load_all() - as it loads to memory
@@ -53,3 +61,25 @@ lib_summary <- function(sizes = FALSE) {
 
 # ctrl-shift-d is shortcut to run documentation - will turn roxygen comment
   # into documentation to get to by ?function()
+
+#' Generate a data.frame of installed packages
+#'
+#' @return data.frame of all packages installed on a system
+#' @export
+lib <- function() {
+  pkgs <- utils::installed.packages()
+  as.data.frame(pkgs, stringsAsFactors = FALSE)
+}
+
+#' Generate sizes
+#'
+#' @param df a data.frame
+#' @return data.frame with lib_size column
+#' @noRd
+calculate_sizes <- function(df) {
+  df$lib_size <- map_dbl(
+    df$Library,
+    \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+  )
+  df
+}
