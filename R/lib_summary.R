@@ -4,8 +4,8 @@
 #'  a data.frame
 #'
 #' @param sizes Should sizes of libraries be calculated. Default 'FALSE'.
-#' # can be accessed through insert roxygen skeleton
-#' # name of parameter and document what it does
+#' can be accessed through insert roxygen skeleton
+#' name of parameter and document what it does
 #'
 #' @return a data.frame of R packages by library
 #' @export
@@ -27,13 +27,19 @@ lib_summary <- function(sizes = FALSE) {
   names(pkg_df) <- c("Library", "n_packages") # Give new names
 
   if (isTRUE(sizes)) {
-    pkg_df$lib_size <- vapply( # for each row in the library
+    # pkg_df$lib_size <- vapply( # for each row in the library
+    #   pkg_df$Library,
+    #   function(x) {
+    #     sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+    #       # list all files recursively and determine their size and sum them
+    #   },
+    #   FUN.VALUE = numeric(1) # ensures that the value of the sum is numeric
+    # )
+    pkg_df$lib_size <- map_dbl( # for each row in the library
       pkg_df$Library,
-      function(x) {
-        sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
-          # list all files recursively and determine their size and sum them
-      },
-      FUN.VALUE = numeric(1) # ensures that the value of the sum is numeric
+      \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+        # anonymous functions syntax - just used in this context and then
+        # is thrown away
     )
   }
 
