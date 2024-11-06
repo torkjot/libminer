@@ -31,9 +31,9 @@ lib_summary()
 #>                                                                       Library
 #> 1                                          C:/Program Files/R/R-4.4.1/library
 #> 2                          C:/Users/KITCHINGT/AppData/Local/R/win-library/4.4
-#> 3 C:/Users/KITCHINGT/AppData/Local/Temp/1/RtmpmAHEHX/temp_libpathebdc119d62db
+#> 3 C:/Users/KITCHINGT/AppData/Local/Temp/1/Rtmpk7Yut0/temp_libpathe0ac62d7686d
 #>   n_packages
 #> 1         29
-#> 2        100
+#> 2        182
 #> 3          1
 ```
