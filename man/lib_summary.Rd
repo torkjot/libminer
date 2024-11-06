@@ -4,9 +4,11 @@
 \alias{lib_summary}
 \title{Provide Number of R Packages by Library}
 \usage{
-lib_summary(sizes = FALSE)
+lib_summary(by = .data$LibPath, sizes = FALSE)
 }
 \arguments{
+\item{by}{Selects the group_by variable}
+
 \item{sizes}{Should sizes of libraries be calculated. Default 'FALSE'.
 can be accessed through insert roxygen skeleton
 name of parameter and document what it does}

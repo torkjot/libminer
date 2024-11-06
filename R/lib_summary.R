@@ -6,6 +6,7 @@
 #' @param sizes Should sizes of libraries be calculated. Default 'FALSE'.
 #' can be accessed through insert roxygen skeleton
 #' name of parameter and document what it does
+#' @param by Selects the group_by variable
 #'
 #' @return a data.frame of R packages by library
 #' @export
@@ -13,48 +14,69 @@
 #' @examples
 #' lib_summary()
 
-lib_summary <- function(sizes = FALSE) {
-  # Input checking
+# Tidyr version
+lib_summary <- function(by = .data$LibPath, sizes = FALSE) {
   if (!is.logical(sizes)) {
-    stop("'sizes' must be logical (TRUE or FALSE)")
+    stop("'sizes' must be a logical")
   }
 
-# Original method
-  # pkgs <- utils::installed.packages() # What packages are installed in sys
-  #   # in a raw format
-  # pkg_tbl <- table(pkgs[, "LibPath"]) # Pull out one column
-  #   # and summarize it into a table by unique values
-  # pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
-  #   # convert into a dataframe and convert into factors
+  pkg_df <- lib() |>
+    calculate_sizes(do_calc = sizes)
 
-# Using helper function (see below)
-  pkg_df <- lib()
-  pkg_tbl <- table(pkg_df[, "LibPath"])
-  pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
-
-  names(pkg_df) <- c("Library", "n_packages")
-
-
-  if (isTRUE(sizes)) {
-    # pkg_df$lib_size <- vapply( # for each row in the library
-    #   pkg_df$Library,
-    #   function(x) {
-    #     sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
-    #       # list all files recursively and determine their size and sum them
-    #   },
-    #   FUN.VALUE = numeric(1) # ensures that the value of the sum is numeric
-    # )
-    pkg_df$lib_size <- map_dbl( # for each row in the library
-      pkg_df$Library,
-      \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
-        # anonymous functions syntax - just used in this context and then
-        # is thrown away
+  pkg_df |>
+  dplyr::group_by({{by}}) |>
+    # dplyr::count()
+    dplyr::summarise(
+      n = dplyr::n(),
+      dplyr::across(dplyr::any_of("size"), .fns = sum, .names = "size")
     )
-  }
-
-  pkg_df # return the package data.frame
 }
 
+# Original FUNCTION Pre-dplyr
+# lib_summary <- function(sizes = FALSE) {
+#   # Input checking
+#   if (!is.logical(sizes)) {
+#     stop("'sizes' must be logical (TRUE or FALSE)")
+#   }
+#
+# # Original method
+#   # pkgs <- utils::installed.packages() # What packages are installed in sys
+#   #   # in a raw format
+#   # pkg_tbl <- table(pkgs[, "LibPath"]) # Pull out one column
+#   #   # and summarize it into a table by unique values
+#   # pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
+#   #   # convert into a dataframe and convert into factors
+#
+# # Using helper function (see below)
+#   pkg_df <- lib()
+#   pkg_tbl <- table(pkg_df[, "LibPath"])
+#   pkg_df <- as.data.frame(pkg_tbl, stringsAsFactors = FALSE)
+#
+#   names(pkg_df) <- c("Library", "n_packages")
+#
+#
+#   if (isTRUE(sizes)) {
+#     # pkg_df$lib_size <- vapply( # for each row in the library
+#     #   pkg_df$Library,
+#     #   function(x) {
+#     #     sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+#     #       # list all files recursively and determine their size and sum them
+#     #   },
+#     #   FUN.VALUE = numeric(1) # ensures that the value of the sum is numeric
+#     # )
+#     pkg_df$lib_size <- map_dbl( # for each row in the library
+#       pkg_df$Library,
+#       \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+#         # anonymous functions syntax - just used in this context and then
+#         # is thrown away
+#     )
+#   }
+#
+#   pkg_df # return the package data.frame
+# }
+
+
+# COMMENTS ********************************************************************
 # load using devtools::load_all() - as it loads to memory
   # OR USE SHORTCUT: Ctrl-Shift-L
 # library takes from Installed to Memory
@@ -77,14 +99,28 @@ lib <- function() {
 #' @param df a data.frame
 #' @return data.frame with lib_size column
 #' @noRd
-calculate_sizes <- function(df) {
-  df$lib_size <- map_dbl(
-    df$Library,
-    \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
-  )
-  df
-}
+# calculate_sizes <- function(df) {
+#   df$lib_size <- map_dbl(
+#     df$Library,
+#     \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+#   )
+#   df
+# }
 
+# Tidyr version
+calculate_sizes <- function(df, do_calc = FALSE) {
+  if (!do_calc) {
+    return(df)
+  }
+
+  df |>
+    dplyr::mutate(
+      size = map_dbl(
+        fs::path(.data$LibPath, .data$Package),
+    \(x) sum(fs::file_size(fs::dir_ls(x, recurse = TRUE)))
+    )
+  )
+}
 
 # validate_inputs <- function() {
 #   if
